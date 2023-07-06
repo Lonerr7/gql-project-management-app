@@ -7,8 +7,6 @@ import {
 } from 'graphql';
 import { projects, clients } from '../../sampleData.js';
 
-//! Закончил на 35 минуте видео
-
 // Client type
 const ClientType = new GraphQLObjectType({
   name: 'Client',
@@ -29,6 +27,12 @@ const ProjectType = new GraphQLObjectType({
     name: { type: GraphQLString },
     description: { type: GraphQLString },
     status: { type: GraphQLString },
+    client: {
+      type: ClientType,
+      resolve(parent) {
+        return clients.find((client) => parent.clientId === client.id);
+      },
+    },
   }),
 });
 
