@@ -1,7 +1,7 @@
-import mongoose from 'mongoose';
+import { isValidID } from './isValidID.js';
 
 export const deleteDocFromDB = async (Model, id) => {
-  if (!mongoose.Types.ObjectId.isValid(id)) {
+  if (!isValidID(id)) {
     throw new Error('Please, enter a correct ID!');
   }
 
