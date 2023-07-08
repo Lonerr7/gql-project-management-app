@@ -9,9 +9,7 @@ import {
 } from 'graphql';
 import Client from '../../models/Client.js';
 import Project from '../../models/Project.js';
-import mongoose from 'mongoose';
-import { deleteDocFromDB } from '../../helpers/deleteDocFromDB.js';
-import { isValidID } from '../../helpers/isValidID.js';
+import { manipulateDocInDB } from '../../helpers/deleteDocFromDB.js';
 
 // Client type
 const ClientType = new GraphQLObjectType({
@@ -98,7 +96,7 @@ const RootMutation = new GraphQLObjectType({
         id: { type: GraphQLNonNull(GraphQLID) },
       },
       resolve: async (_, { id }) => {
-        return await deleteDocFromDB(Client, id);
+        return await manipulateDocInDB(Client, 'delete', id);
       },
     },
 
@@ -137,7 +135,7 @@ const RootMutation = new GraphQLObjectType({
         id: { type: GraphQLNonNull(GraphQLID) },
       },
       resolve: async (_, { id }) => {
-        return await deleteDocFromDB(Project, id);
+        return await manipulateDocInDB(Project, 'delete', id);
       },
     },
     updateProject: {
@@ -158,25 +156,13 @@ const RootMutation = new GraphQLObjectType({
         },
       },
       resolve: async (_, { id, name, description, status }) => {
-        if (!isValidID(id)) {
-          throw new Error('Please, enter a correct ID!');
-        }
+        const payload = {
+          name,
+          description,
+          status,
+        };
 
-        const updatedDoc = await Project.findByIdAndUpdate(
-          id,
-          {
-            name,
-            description,
-            status,
-          },
-          { new: true }
-        );
-
-        if (!updatedDoc) {
-          throw new Error('No project found with that ID!');
-        }
-
-        return updatedDoc;
+        return await manipulateDocInDB(Project, 'update', id, payload);
       },
     },
   },
