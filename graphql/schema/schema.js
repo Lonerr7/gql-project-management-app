@@ -5,10 +5,12 @@ import {
   GraphQLSchema,
   GraphQLString,
   GraphQLNonNull,
+  GraphQLEnumType,
 } from 'graphql';
 import Client from '../../models/Client.js';
 import Project from '../../models/Project.js';
 import mongoose from 'mongoose';
+import { deleteDocFromDB } from '../../helpers/deleteDocFromDB.js';
 
 // Client type
 const ClientType = new GraphQLObjectType({
@@ -86,7 +88,6 @@ const RootMutation = new GraphQLObjectType({
         phone: { type: GraphQLNonNull(GraphQLString) },
       },
       resolve: async (_, { name, email, phone }) => {
-        // const existingClient = await Client
         return await Client.create({ name, email, phone });
       },
     },
@@ -96,17 +97,46 @@ const RootMutation = new GraphQLObjectType({
         id: { type: GraphQLNonNull(GraphQLID) },
       },
       resolve: async (_, { id }) => {
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-          throw new Error('Please, enter a correct ID!');
-        }
+        return await deleteDocFromDB(Client, id);
+      },
+    },
 
-        const deletedClient = await Client.findByIdAndRemove(id);
+    addProject: {
+      type: ProjectType,
+      args: {
+        name: { type: GraphQLNonNull(GraphQLString) },
+        description: { type: GraphQLNonNull(GraphQLString) },
+        status: {
+          type: new GraphQLEnumType({
+            name: 'ProjectStatus',
+            values: {
+              new: { value: 'Not Started' },
+              progress: { value: 'In Progress' },
+              completed: { value: 'Completed' },
+            },
+          }),
+          defaultValue: 'Not Started',
+        },
+        clientId: { type: GraphQLNonNull(GraphQLID) },
+      },
+      resolve: async (_, { name, description, status, clientId }) => {
+        const newProject = await Project.create({
+          name,
+          description,
+          status,
+          clientId,
+        });
 
-        if (!deletedClient) {
-          throw new Error('No Client found with that id!');
-        }
-
-        return deletedClient;
+        return newProject;
+      },
+    },
+    deleteProject: {
+      type: ProjectType,
+      args: {
+        id: { type: GraphQLNonNull(GraphQLID) },
+      },
+      resolve: async (_, { id }) => {
+        return await deleteDocFromDB(Project, id);
       },
     },
   },
