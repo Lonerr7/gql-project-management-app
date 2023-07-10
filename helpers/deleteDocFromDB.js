@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { operations } from './dictionary.js';
 
 export const manipulateDocInDB = async (Model, operation, id, payload) => {
   // Checking if id we entered is a valid ObjectId
@@ -10,10 +11,10 @@ export const manipulateDocInDB = async (Model, operation, id, payload) => {
 
   // Checking the operation name and doing what it provides
   switch (operation) {
-    case 'delete':
+    case operations.DELETE:
       docToManipulate = await Model.findByIdAndDelete(id);
       break;
-    case 'update':
+    case operations.UPDATE:
       docToManipulate = await Model.findByIdAndUpdate(id, payload, {
         new: true,
       });

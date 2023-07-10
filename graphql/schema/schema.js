@@ -10,6 +10,7 @@ import {
 import Client from '../../models/Client.js';
 import Project from '../../models/Project.js';
 import { manipulateDocInDB } from '../../helpers/deleteDocFromDB.js';
+import { operations } from '../../helpers/dictionary.js';
 
 // Client type
 const ClientType = new GraphQLObjectType({
@@ -96,7 +97,7 @@ const RootMutation = new GraphQLObjectType({
         id: { type: GraphQLNonNull(GraphQLID) },
       },
       resolve: async (_, { id }) => {
-        return await manipulateDocInDB(Client, 'delete', id);
+        return await manipulateDocInDB(Client, operations.DELETE, id);
       },
     },
 
@@ -135,7 +136,7 @@ const RootMutation = new GraphQLObjectType({
         id: { type: GraphQLNonNull(GraphQLID) },
       },
       resolve: async (_, { id }) => {
-        return await manipulateDocInDB(Project, 'delete', id);
+        return await manipulateDocInDB(Project, operations.DELETE, id);
       },
     },
     updateProject: {
@@ -162,7 +163,7 @@ const RootMutation = new GraphQLObjectType({
           status,
         };
 
-        return await manipulateDocInDB(Project, 'update', id, payload);
+        return await manipulateDocInDB(Project, operations.UPDATE, id, payload);
       },
     },
   },
