@@ -63,7 +63,7 @@ const RootQuery = new GraphQLObjectType({
     projects: {
       type: new GraphQLList(ProjectType),
       resolve: async () => {
-        return await Project.find();
+        return (await Project.find()).reverse();
       },
     },
     project: {
@@ -97,6 +97,8 @@ const RootMutation = new GraphQLObjectType({
         id: { type: GraphQLNonNull(GraphQLID) },
       },
       resolve: async (_, { id }) => {
+        await Project.deleteMany({ clientId: id });
+
         return await manipulateDocInDB(Client, operations.DELETE, id);
       },
     },
@@ -107,14 +109,7 @@ const RootMutation = new GraphQLObjectType({
         name: { type: GraphQLNonNull(GraphQLString) },
         description: { type: GraphQLNonNull(GraphQLString) },
         status: {
-          type: new GraphQLEnumType({
-            name: 'ProjectStatus',
-            values: {
-              new: { value: 'Not Started' },
-              progress: { value: 'In Progress' },
-              completed: { value: 'Completed' },
-            },
-          }),
+          type: GraphQLNonNull(GraphQLString),
           defaultValue: 'Not Started',
         },
         clientId: { type: GraphQLNonNull(GraphQLID) },
@@ -146,14 +141,8 @@ const RootMutation = new GraphQLObjectType({
         name: { type: GraphQLString },
         description: { type: GraphQLString },
         status: {
-          type: new GraphQLEnumType({
-            name: 'ProjectStatusUpdate',
-            values: {
-              new: { value: 'Not Started' },
-              progress: { value: 'In Progress' },
-              completed: { value: 'Completed' },
-            },
-          }),
+          type: GraphQLNonNull(GraphQLString),
+          defaultValue: 'Not Started',
         },
       },
       resolve: async (_, { id, name, description, status }) => {

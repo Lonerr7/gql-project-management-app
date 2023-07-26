@@ -4,6 +4,7 @@ const ClientSchema = new mongoose.Schema({
   name: {
     type: String,
     required: [true, 'A Client must have a name'],
+    min: [3, 'Your name is too short!'],
   },
   email: {
     type: String,
